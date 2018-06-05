@@ -197,6 +197,7 @@
         width: 1200px;
         margin: 0 auto;
     }
+
     #feed-wrap {
         padding-bottom: 0;
         margin-bottom: 28px;
@@ -214,9 +215,11 @@
     .z-clearfix:after, .z-hor-feed:after {
         clear: both;
     }
+
     * {
         outline: 0;
     }
+
     body {
         margin: 0;
         line-height: 1.2;
@@ -236,6 +239,7 @@
         color: #5188a6;
         cursor: pointer;
     }
+
     a, a:hover {
         text-decoration: none;
     }
@@ -246,15 +250,7 @@
 
     @font-face {
         font-family: zdm-icons;
-        src:  url(./assets/fonts/zdm-icons.2897247.woff2) format("woff2"), url(./assets/fonts/zdm-icons.684988b.ttf) format("truetype"), url(./assets/fonts/zdm-icons.67906c0.woff) format("woff"), url(data:image/svg+xml;base64,bW9kdWxlLmV4cG9ydHMgPSBfX3dlYnBhY2tfcHVibGljX3BhdGhfXyArICJmb250cy96ZG0taWNvbnMuZDliMWZmOC5zdmciOw==#zdm-icons) format("svg");
-        font-weight: 400;
-        font-style: normal
-    }
-
-    @font-face {
-        font-family: zdm-special-fonts;
-        src: url(./assets/fonts/zdm-special-fonts.1720b14.eot);
-        src: url(./assets/fonts/zdm-special-fonts.1720b14.eot#iefix) format("embedded-opentype"), url(./assets/fonts/zdm-special-fonts.2a32552.woff2) format("woff2"), url(./assets/fonts/zdm-special-fonts.b6605c3.ttf) format("truetype"), url(./assets/fonts/zdm-special-fonts.72f9dc6.woff) format("woff"), url(data:image/svg+xml;base64,bW9kdWxlLmV4cG9ydHMgPSBfX3dlYnBhY2tfcHVibGljX3BhdGhfXyArICJmb250cy96ZG0tc3BlY2lhbC1mb250cy4wMTdiMTQ1LnN2ZyI7#zdm-special-fonts) format("svg");
+        src: url(https://res.smzdm.com/pc/v1.0/dll/fonts/zdm-icons.2897247.woff2) format("woff2");
         font-weight: 400;
         font-style: normal
     }
