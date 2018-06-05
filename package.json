@@ -1,7 +1,7 @@
 {
-  "name": "element-starter",
-  "description": "A Vue.js project",
-  "author": "yi.shyang@ele.me",
+  "name": "smzdm-view-element",
+  "description": "爬虫页面",
+  "author": "changdy",
   "private": true,
   "scripts": {
     "dev": "webpack-dev-server --inline --hot --env.dev",
@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "element-ui": "^2.3.4",
+    "moment": "^2.22.2",
     "vue": "^2.5.16"
   },
   "engines": {
