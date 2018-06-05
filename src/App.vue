@@ -243,4 +243,35 @@
     li {
         list-style: none;
     }
+
+    @font-face {
+        font-family: zdm-icons;
+        src:  url(./assets/fonts/zdm-icons.2897247.woff2) format("woff2"), url(./assets/fonts/zdm-icons.684988b.ttf) format("truetype"), url(./assets/fonts/zdm-icons.67906c0.woff) format("woff"), url(data:image/svg+xml;base64,bW9kdWxlLmV4cG9ydHMgPSBfX3dlYnBhY2tfcHVibGljX3BhdGhfXyArICJmb250cy96ZG0taWNvbnMuZDliMWZmOC5zdmciOw==#zdm-icons) format("svg");
+        font-weight: 400;
+        font-style: normal
+    }
+
+    @font-face {
+        font-family: zdm-special-fonts;
+        src: url(./assets/fonts/zdm-special-fonts.1720b14.eot);
+        src: url(./assets/fonts/zdm-special-fonts.1720b14.eot#iefix) format("embedded-opentype"), url(./assets/fonts/zdm-special-fonts.2a32552.woff2) format("woff2"), url(./assets/fonts/zdm-special-fonts.b6605c3.ttf) format("truetype"), url(./assets/fonts/zdm-special-fonts.72f9dc6.woff) format("woff"), url(data:image/svg+xml;base64,bW9kdWxlLmV4cG9ydHMgPSBfX3dlYnBhY2tfcHVibGljX3BhdGhfXyArICJmb250cy96ZG0tc3BlY2lhbC1mb250cy4wMTdiMTQ1LnN2ZyI7#zdm-special-fonts) format("svg");
+        font-weight: 400;
+        font-style: normal
+    }
+
+    .z-icons, i[class*=" z-icon-"], i[class^=z-icon-] {
+        font-family: zdm-icons !important;
+        speak: none;
+        font-style: normal;
+        font-weight: 400;
+        font-variant: normal;
+        text-transform: none;
+        line-height: 1;
+        letter-spacing: 0;
+        -ms-font-feature-settings: "liga" 1;
+        font-feature-settings: "liga";
+        font-variant-ligatures: discretionary-ligatures;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
 </style>
