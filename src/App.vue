@@ -1,23 +1,131 @@
 <template>
-    <div class="content-inner">
-        <div id="feed-wrap" class="z-clearfix">
-            <article-list :items="items"/>
-        </div>
+    <div>
+        <el-row>
+            <el-col :span="12" :offset="4">
+                <el-tabs type="border-card" @tab-click="handleSwitch">
+                    <el-tab-pane label="API搜索">
+                        <el-form :inline="true" class="demo-form-inline">
+                            <el-form-item label="目录">
+                                <el-input v-model="apiSearch.category" readonly @focus="testClick"/>
+                            </el-form-item>
+                            <el-form-item label="点值">
+                                <el-input v-model.number="apiSearch.worthy"/>
+                            </el-form-item>
+                            <el-form-item label="评论">
+                                <el-input v-model.number="apiSearch.comments"/>
+                            </el-form-item>
+                            <el-form-item label="页码">
+                                <el-input v-model.number="apiSearch.pages"/>
+                            </el-form-item>
+                            <el-form-item>
+                                <el-button type="primary" icon="el-icon-search" @click="search('api')">查询</el-button>
+                            </el-form-item>
+                        </el-form>
+                    </el-tab-pane>
+                    <el-tab-pane label="数据库搜索">
+                        <el-form :inline="true" class="demo-form-inline">
+                            <el-form-item label="目录">
+                                <el-input v-model="dbSearch.category" readonly @focus="testClick"/>
+                            </el-form-item>
+                            <el-form-item label="标题">
+                                <el-input v-model="dbSearch.category"/>
+                            </el-form-item>
+                            <el-form-item label="点值">
+                                <el-input v-model.number="dbSearch.worthy"/>
+                            </el-form-item>
+                            <el-form-item label="评论">
+                                <el-input v-model.number="dbSearch.comments"/>
+                            </el-form-item>
+                            <el-form-item label="时间">
+                                <el-date-picker
+                                        value-format="yyyy-MM-dd"
+                                        v-model="dbSearch.dateRange"
+                                        type="daterange"
+                                        range-separator="至"
+                                        start-placeholder="开始日期"
+                                        end-placeholder="结束日期">
+                                </el-date-picker>
+                            </el-form-item>
+                            <el-form-item>
+                                <el-button type="primary" icon="el-icon-search" @click="search('db')">查询</el-button>
+                            </el-form-item>
+                        </el-form>
+                    </el-tab-pane>
+                </el-tabs>
+            </el-col>
+        </el-row>
+        <el-row style="margin-top: 20px">
+            <el-col :span="18" :offset="4" class="z-clearfix">
+                <article-list :items="articleList"/>
+            </el-col>
+        </el-row>
+        <el-row>
+            <el-col :span="6" :offset="12">
+                <el-pagination
+                        @size-change="handleSizeChange"
+                        @current-change="handleCurrentChange"
+                        :current-page.sync="currentPage"
+                        :page-sizes="[50, 100,200]"
+                        :page-size="pageSize"
+                        layout="total, sizes, prev, pager, next, jumper"
+                        :total="total"
+                >
+                </el-pagination>
+            </el-col>
+        </el-row>
     </div>
 </template>
 
 <script>
-    // import category from "./component/category.vue";
     import articleList from "./component/article-list.vue";
+
+    import category from "./component/category";
 
     export default {
         components: {
-            // category,
-            articleList
+            articleList,
+            category
+        },
+        methods: {
+            handleSizeChange(val) {
+                this.pageSize = val;
+                console.log(`每页 ${val} 条`);
+            },
+            handleCurrentChange(val) {
+                // todo 触发下一页
+            },
+            handleSwitch(tab, event) {
+                console.log(tab, event);
+            },
+            testClick() {
+                console.log(new Date());
+            },
+            search(value) {
+                if (value === 'api') {
+                    console.log(JSON.stringify(this.apiSearch));
+                } else {
+                    console.log(JSON.stringify(this.dbSearch));
+                }
+            }
         },
         data() {
             return {
-                items: [{
+                apiSearch: {
+                    category: "",
+                    worthy: 0,
+                    comments: 0,
+                    pages: 2
+                },
+                dbSearch: {
+                    dateRange: [],
+                    category: "",
+                    worthy: 0,
+                    comments: 0
+                },
+                currentPage: 1,
+                pageSize: 100,
+                total: 500,
+                articleList: [{
                     "date": "2018-06-04 21:21:32",
                     "mall": "天猫精选",
                     "articleId": 9552316,
@@ -196,11 +304,6 @@
     .content-inner {
         width: 1200px;
         margin: 0 auto;
-    }
-
-    #feed-wrap {
-        padding-bottom: 0;
-        margin-bottom: 28px;
     }
 
     .z-clearfix, .z-hor-feed {

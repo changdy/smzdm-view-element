@@ -1,5 +1,5 @@
 <template>
-    <div class="dropdown-con" style="margin-left: 100px;top: 60px;" @click.stop v-show="showState">
+    <div class="dropdown-con"  @click.stop v-show="showState">
         <ul class="drop-cate-list">
             <li v-for="(index,item) in items" :data-id="item.ID" @mouseenter="hover(index)" :class="{ active: index === showIndex }" :key="item.ID">
                 <a href="javascript:">

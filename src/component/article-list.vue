@@ -73,7 +73,6 @@
         background-color: #fff;
         margin-top: 0;
         float: left;
-        width: 858px;
     }
 
     #feed-main-list > li {
@@ -178,7 +177,7 @@
 
     .feed-block .z-feed-content {
         float: left;
-        width: 622px;
+        width: 720px;
         overflow: visible;
     }
 
