@@ -1,29 +1,29 @@
 <template>
-    <div class="dropdown-con"  @click.stop v-show="showState">
+    <div class="dropdown-con" @click.stop v-show="showState">
         <ul class="drop-cate-list">
-            <li v-for="(index,item) in items" :data-id="item.ID" @mouseenter="hover(index)" :class="{ active: index === showIndex }" :key="item.ID">
+            <li v-for="(item,index) in items" :data-id="item.id" @mouseenter="hover(index)" :class="{ active: index === showIndex }" :key="item.id">
                 <a href="javascript:">
-                    <span class="z-icons" :class="'z-icon-' + item.url_nicktitle"></span> {{item.title}}
+                    <span class="z-icons" :class="'z-icon-' + item.urlNicktitle"></span> {{item.title}}
                 </a>
             </li>
         </ul>
         <div class="dropdown-r">
-            <div v-for="(index,tempItem) in items" class="drop-cate-wrap" v-show="index === showIndex">
+            <div v-for="(tempItem,index) in items" class="drop-cate-wrap" v-show="index === showIndex">
                 <table class="drop-menus">
                     <tbody>
-                    <tr v-for="children in tempItem.child" :key="children.ID">
+                    <tr v-for="children in tempItem.child" :key="children.id">
                         <td class="drop-menu-title"
-                            @click="selectSecond(children.ID)"
-                            :class="{ 'category-selected': selectList.second.includes(children.ID)}">
-                            <a href="javascript:" :data-id="children.ID">{{children.title}}</a><span class="split"></span>
+                            @click="selectSecond(children.id)"
+                            :class="{ 'category-selected': selectAll.includes(children.id)}">
+                            <a href="javascript:" :data-id="children.id">{{children.title}}</a><span class="split"></span>
                         </td>
                         <td class="drop-menu-items">
                             <a href="javascript:"
-                               :key="nodes.ID"
-                               :data-id="nodes.ID"
+                               :key="nodes.id"
+                               :data-id="nodes.id"
                                v-for="nodes in children.child"
-                               @click="selectThird(children.ID,nodes.ID)"
-                               :class="{ 'category-selected': thirdAll.includes(nodes.ID)}">{{nodes.title}}</a>
+                               @click="selectThird(children.id,nodes.id)"
+                               :class="{ 'category-selected': selectAll.includes(nodes.id)}">{{nodes.title}}</a>
                         </td>
                     </tr>
                     </tbody>
@@ -35,15 +35,12 @@
 
 <script>
     export default {
-        props: ['items', 'multiple', 'showState', 'itemList'],
+        props: ['items', 'multiple', 'showState', 'itemMap'],
         data() {
             return {
                 showIndex: 0,
-                selectList: {
-                    second: [],
-                    third: []
-                },
-                currentSelected: 0,
+                secondList: [],
+                thirdList: []
             }
         },
         methods: {
@@ -51,54 +48,55 @@
                 this.showIndex = index;
             },
             selectSecond(id) {
+                let secondArr = this.secondList;
+                let thirdArr = this.thirdList;
                 if (this.multiple) {
-                    if (this.selectList.second.includes(id)) {
-                        this.selectList.second.splice(this.selectList.second.findIndex(item => item === id), 1);
+                    if (secondArr.includes(id)) {
+                        secondArr.splice(secondArr.findIndex(item => item === id), 1);
                     } else {
-                        this.selectList.second.push(id);
+                        secondArr.push(id);
+                        this.itemMap[id].forEach(x => {
+                            thirdArr.splice(thirdArr.findIndex(item => item === x), 1);
+                        })
                     }
                 } else {
-                    this.currentSelected = id;
+                    secondArr.splice(0, 1, secondArr[0] === id ? 0 : id)
                 }
             },
             selectThird(parentId, id) {
+                let secondArr = this.secondList;
+                let thirdArr = this.thirdList;
                 if (this.multiple) {
-                    let thirdLevel = this.selectList.third;
-                    thirdLevel.push(id);
-                    if (this.selectList.second.includes(parentId)) {
-                        this.selectList.second.splice(this.selectList.second.findIndex(item => item === parentId), 1);
-                    } else {
-                        if (this.itemList[parentId].children.every(x => thirdLevel.includes(x))) {
-                            this.selectList.second.push(parentId);
-                            this.itemList[parentId].children.forEach(x => {
-                                thirdLevel.splice(thirdLevel.findIndex(item => item === x), 1);
-                            })
-                        }
+                    thirdArr.push(id);
+                    if (secondArr.includes(parentId)) {
+                        // 如果之前就已经全选了 那就删除掉
+                        secondArr.splice(secondArr.findIndex(item => item === parentId), 1);
+                    } else if (this.itemMap[parentId].every(x => thirdArr.includes(x))) {
+                        secondArr.push(parentId);
+                        this.itemMap[parentId].forEach(x => {
+                            thirdArr.splice(thirdArr.findIndex(item => item === x), 1);
+                        })
                     }
                 } else {
-                    this.currentSelected = id;
+                    thirdArr.splice(0, 1, thirdArr[0] === id ? 0 : id);
                 }
             }
         },
         computed: {
-            thirdAll() {
-                let tempArr = [];
-                if (this.multiple) {
-                    this.selectList.second.forEach(x => {
-                        tempArr.push(this.itemList[x].children);
-                    });
-                    tempArr.push(this.selectList.third);
-                } else {
-                    tempArr.push(this.currentSelected);
-                }
+            selectAll() {
+                console.log(this.secondList);
+                console.log(this.thirdList);
+                let tempArr = this.secondList.concat(this.thirdList);
+                this.secondList.forEach(x => {
+                    tempArr = tempArr.concat(this.itemMap[x]);
+                });
                 return tempArr;
             }
         }
-
     }
 </script>
 
-<style>
+<style scoped>
     .category-selected a {
         color: #f04848 !important;
     }
@@ -113,7 +111,10 @@
         overflow: hidden;
         z-index: 99;
         margin-left: 20px;
-        display: none;
+    }
+
+    .dropdown-con tr, .dropdown-con td, .dropdown-con li {
+        line-height: normal;
     }
 
     .dropdown-con .dropdown-r {
@@ -184,7 +185,7 @@
     }
 
     .drop-menus td.drop-menu-items {
-        padding-bottom: 8px
+        padding-bottom: 8px;
     }
 
     .drop-menus td.drop-menu-items a {
@@ -226,7 +227,7 @@
         vertical-align: -2px
     }
 
-    .category-selected {
+    .drop-menus td.drop-menu-items .category-selected {
         color: #f04848;
     }
 </style>
