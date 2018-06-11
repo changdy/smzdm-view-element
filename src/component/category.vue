@@ -60,7 +60,7 @@
                         })
                     }
                 } else {
-                    secondArr.splice(0, 1, secondArr[0] === id ? 0 : id)
+                    changeArr(id, secondArr, thirdArr);
                 }
             },
             selectThird(parentId, id) {
@@ -78,14 +78,12 @@
                         })
                     }
                 } else {
-                    thirdArr.splice(0, 1, thirdArr[0] === id ? 0 : id);
+                    changeArr(id, thirdArr, secondArr);
                 }
             }
         },
         computed: {
             selectAll() {
-                console.log(this.secondList);
-                console.log(this.thirdList);
                 let tempArr = this.secondList.concat(this.thirdList);
                 this.secondList.forEach(x => {
                     tempArr = tempArr.concat(this.itemMap[x]);
@@ -93,6 +91,15 @@
                 return tempArr;
             }
         }
+    }
+
+    function changeArr(currentId, currentArr, backArr) {
+        if (currentArr[0] === currentId) {
+            currentArr.pop();
+        } else {
+            currentArr.splice(0, 1, currentId);
+        }
+        backArr.pop();
     }
 </script>
 
