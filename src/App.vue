@@ -7,7 +7,7 @@
                         <el-form :inline="true">
                             <category
                                     :items="items"
-                                    :multiple="true"
+                                    :multiple="false"
                                     @update-value="getSelectInfo"
                             />
                             <el-form-item label="点值">
