@@ -1,33 +1,41 @@
 <template>
-    <div class="dropdown-con" v-show="showState" id="test">
-        <ul class="drop-cate-list">
-            <li v-for="(item,index) in items" :data-id="item.id" @mouseenter="hover(index)" :class="{ active: index === showIndex }" :key="item.id">
-                <a href="javascript:">
-                    <span class="z-icons" :class="'z-icon-' + item.urlNicktitle"></span> {{item.title}}
-                </a>
-            </li>
-        </ul>
-        <div class="dropdown-r">
-            <div v-for="(tempItem,index) in items" class="drop-cate-wrap" v-show="index === showIndex">
-                <table class="drop-menus">
-                    <tbody>
-                    <tr v-for="children in tempItem.child" :key="children.id">
-                        <td class="drop-menu-title"
-                            @click="selectSecond(children.id)"
-                            :class="{ 'category-selected': selectAll.includes(children.id)}">
-                            <a href="javascript:" :data-id="children.id">{{children.title}}</a><span class="split"></span>
-                        </td>
-                        <td class="drop-menu-items">
-                            <a href="javascript:"
-                               :key="nodes.id"
-                               :data-id="nodes.id"
-                               v-for="nodes in children.child"
-                               @click="selectThird(children.id,nodes.id)"
-                               :class="{ 'category-selected': selectAll.includes(nodes.id)}">{{nodes.title}}</a>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
+    <div class="el-form-item">
+        <label class="el-form-item__label">目录</label>
+        <div class="el-form-item__content" style="margin-left: -4px">
+            <div class="el-input" @click="showState=true">
+                <input type="text" autocomplete="off" readonly class="el-input__inner" placeholder="目录" v-model="inputValue">
+            </div>
+        </div>
+        <div class="dropdown-con" v-if="showState">
+            <ul class="drop-cate-list">
+                <li v-for="(item,index) in items" :data-id="item.id" @mouseenter="hover(index)" :class="{ active: index === showIndex }" :key="item.id">
+                    <a href="javascript:">
+                        <span class="z-icons" :class="'z-icon-' + item.urlNicktitle"></span> {{item.title}}
+                    </a>
+                </li>
+            </ul>
+            <div class="dropdown-r">
+                <div v-for="(tempItem,index) in items" class="drop-cate-wrap" v-show="index === showIndex">
+                    <table class="drop-menus">
+                        <tbody>
+                        <tr v-for="children in tempItem.child" :key="children.id">
+                            <td class="drop-menu-title"
+                                @click="selectSecond(children.id)"
+                                :class="{ 'category-selected': selectAll.includes(children.id)}">
+                                <a href="javascript:" :data-id="children.id">{{children.title}}</a><span class="split"></span>
+                            </td>
+                            <td class="drop-menu-items">
+                                <a href="javascript:"
+                                   :key="nodes.id"
+                                   :data-id="nodes.id"
+                                   v-for="nodes in children.child"
+                                   @click="selectThird(children.id,nodes.id)"
+                                   :class="{ 'category-selected': selectAll.includes(nodes.id)}">{{nodes.title}}</a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -35,9 +43,10 @@
 
 <script>
     export default {
-        props: ['items', 'multiple', 'showState', 'itemMap'],
+        props: ['items', 'multiple'],
         data() {
             return {
+                showState: false,
                 showIndex: 0,
                 secondList: [],
                 thirdList: []
@@ -54,7 +63,7 @@
                         secondArr.splice(secondArr.findIndex(item => item === id), 1);
                     } else {
                         secondArr.push(id);
-                        this.itemMap[id].forEach(x => {
+                        this.parallelItem[1].find(x => x.id === id).child.forEach(x => {
                             thirdArr.splice(thirdArr.findIndex(item => item === x), 1);
                         })
                     }
@@ -70,11 +79,14 @@
                     if (secondArr.includes(parentId)) {
                         // 如果之前就已经全选了 那就删除掉
                         secondArr.splice(secondArr.findIndex(item => item === parentId), 1);
-                    } else if (this.itemMap[parentId].every(x => thirdArr.includes(x))) {
-                        secondArr.push(parentId);
-                        this.itemMap[parentId].forEach(x => {
-                            thirdArr.splice(thirdArr.findIndex(item => item === x), 1);
-                        })
+                    } else {
+                        let child = this.parallelItem[1].find(x => x.id === parentId).child;
+                        if (child.every(x => thirdArr.includes(x))) {
+                            secondArr.push(parentId);
+                            child.forEach(x => {
+                                thirdArr.splice(thirdArr.findIndex(item => item === x), 1);
+                            })
+                        }
                     }
                 } else {
                     changeArr(id, thirdArr, secondArr);
@@ -86,21 +98,53 @@
             selectAll() {
                 let tempArr = this.secondList.concat(this.thirdList);
                 this.secondList.forEach(x => {
-                    tempArr = tempArr.concat(this.itemMap[x]);
+                    tempArr = tempArr.concat(this.parallelItem[1].find(y => y.id === x).child);
                 });
                 return tempArr;
+            }, inputValue() {
+                let arr = [];
+                let vm = this;
+                vm.secondList.forEach(x => {
+                    arr.push(this.parallelItem[1].find(y => y.id === x).title);
+                });
+                vm.thirdList.forEach(x => {
+                    arr.push(this.parallelItem[2].find(y => y.id === x).title);
+                });
+                if (arr.length > 0) {
+                    return arr.join(',');
+                } else {
+                    return '未选择';
+                }
+            }, parallelItem() {
+                let arr = [[], [], []];
+                sumCategory(this.items, arr, 0);
+                return arr
             }
         }, mounted() {
             // 点击其他不在的区域触发事件
             let vm = this;
             document.addEventListener('click', (e) => {
-                // if (!this.$el.contains(e.target)) {
-                //     this.$emit('update:showState', false);
-                // }
-                // console.log(vm.$el);
-                console.log(document.activeElement);
+                if (!this.$el.contains(e.target)) {
+                    vm.showState = false;
+                }
             })
         }
+    }
+
+    function sumCategory(currentArr, sumArr, level) {
+        currentArr.forEach(x => {
+            let tempObj = {id: x.id, title: x.title};
+            let child = x.child;
+            if (child !== null && child !== undefined) {
+                let tempArr = [];
+                child.forEach(y => tempArr.push(y.id));
+                tempObj.child = tempArr;
+                if (level < 2) {
+                    sumCategory(child, sumArr, level + 1);
+                }
+            }
+            sumArr[level].push(tempObj);
+        });
     }
 
     function changeArr(currentId, currentArr, backArr) {
