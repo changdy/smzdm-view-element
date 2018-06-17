@@ -3,28 +3,28 @@
         <el-row>
             <el-col :span="12" :offset="4">
                 <el-tabs type="border-card" @tab-click="handleSwitch" class="search-tabs">
-                    <el-tab-pane label="API搜索">
+                    <el-tab-pane label="api">
                         <el-form :inline="true">
                             <category :items="items" :multiple="false" @update-select="updateSelect"/>
                             <el-form-item label="点值">
-                                <el-input v-model.number="apiSearch.worthy" clearable/>
+                                <el-input v-model.number="apiSearch.worthy"/>
                             </el-form-item>
                             <el-form-item label="评论">
-                                <el-input v-model.number="apiSearch.comments" clearable/>
+                                <el-input v-model.number="apiSearch.comments"/>
                             </el-form-item>
                             <el-form-item label="页码">
                                 <el-input v-model.number="apiSearch.pages"/>
                             </el-form-item>
                             <el-form-item>
-                                <el-button type="primary" icon="el-icon-search" @click="search('api')">查询</el-button>
+                                <el-button type="primary" icon="el-icon-search" @click="search">查询</el-button>
                             </el-form-item>
                         </el-form>
                     </el-tab-pane>
-                    <el-tab-pane label="数据库搜索">
+                    <el-tab-pane label="db">
                         <el-form :inline="true">
-                            <!--<category :items="items" :multiple="true" @update-select="updateSelect"/>-->
+                            <category :items="items" :multiple="true" @update-select="updateSelect"/>
                             <el-form-item label="标题">
-                                <el-input v-model="dbSearch.category"/>
+                                <el-input v-model="dbSearch.title"/>
                             </el-form-item>
                             <el-form-item label="点值">
                                 <el-input v-model.number="dbSearch.worthy"/>
@@ -43,7 +43,7 @@
                                 </el-date-picker>
                             </el-form-item>
                             <el-form-item>
-                                <el-button type="primary" icon="el-icon-search" @click="search('db')">查询</el-button>
+                                <el-button type="primary" icon="el-icon-search" @click="search">查询</el-button>
                             </el-form-item>
                         </el-form>
                     </el-tab-pane>
@@ -52,7 +52,8 @@
         </el-row>
         <el-row style="margin-top: 20px">
             <el-col :span="18" :offset="4" class="z-clearfix">
-                <article-list :items="articleList"/>
+                <article-list :items="articleList" v-show="articleList.length >0"/>
+                <div v-show="articleList.length === 0" style="margin: auto">当前暂无记录</div>
             </el-col>
         </el-row>
         <el-row v-show="currentModel === 'db'">
@@ -78,31 +79,7 @@
     import category from "./component/category";
 
     export default {
-        components: {
-            articleList,
-            category
-        },
-        methods: {
-            handleSizeChange(val) {
-                this.pageSize = val;
-            }, handleCurrentChange(val) {
-                // todo 触发下一页
-            }, handleSwitch(tab, event) {
-                console.log(tab);
-            }, search(value) {
-                this.currentModel = value === 'api' ? 'api' : 'db';
-            }, updateSelect(secondList, thirdList) {
-                if (this.currentModel === 'api') {
-                    this.apiSearch.category[0] = [secondList];
-                    this.apiSearch.category[1] = [thirdList];
-                } else {
-                    this.apiSearch.category[0] = [secondList];
-                    this.dbSearch.category[1] = [thirdList];
-                }
-            }
-        }, data() {
-            let item = JSON.parse(window.localStorage.category);
-            let itemMap = JSON.parse(window.localStorage.categoryItem);
+        data() {
             return {
                 currentModel: 'api',
                 apiSearch: {
@@ -114,6 +91,7 @@
                 dbSearch: {
                     dateRange: [],
                     category: [],
+                    title: '',
                     worthy: 0,
                     comments: 0,
                     pageIndex: 1,
@@ -121,11 +99,34 @@
                 },
                 total: 500,
                 articleList: [],
-                items: item,
-                itemMap: itemMap
+                items: JSON.parse(window.localStorage.category)
             };
+        }, components: {
+            articleList,
+            category
         },
-
+        methods: {
+            handleSizeChange(val) {
+                this.pageSize = val;
+            }, handleCurrentChange(val) {
+            }, handleSwitch(tab) {
+                this.currentModel = tab.label;
+            }, search() {
+                if (this.currentModel === 'api') {
+                    console.log(JSON.stringify(this.apiSearch));
+                } else {
+                    console.log(JSON.stringify(this.dbSearch));
+                }
+            }, updateSelect(secondList, thirdList) {
+                if (this.currentModel === 'api') {
+                    this.apiSearch.category[0] = secondList;
+                    this.apiSearch.category[1] = thirdList;
+                } else {
+                    this.apiSearch.category[0] = secondList;
+                    this.dbSearch.category[1] = thirdList;
+                }
+            }
+        }
     }
 </script>
 <style>

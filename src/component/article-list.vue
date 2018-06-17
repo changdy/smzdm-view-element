@@ -1,6 +1,6 @@
 <template>
-    <ul id="feed-main-list">
-        <li v-for="item in items">
+    <div id="feed-main-list">
+        <div v-for="item in items">
             <h5 class="feed-block-title">
                 <a :href="item.url">{{item.title}}<span class="z-highlight">{{item.price}}</span></a>
             </h5>
@@ -39,8 +39,8 @@
                     </div>
                 </div>
             </div>
-        </li>
-    </ul>
+        </div>
+    </div>
 </template>
 
 <script>
