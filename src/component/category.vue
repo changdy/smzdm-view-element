@@ -2,8 +2,14 @@
     <div class="el-form-item">
         <label class="el-form-item__label">目录</label>
         <div class="el-form-item__content" style="margin-left: -4px">
-            <div class="el-input" @click="showState=true">
-                <input type="text" autocomplete="off" readonly class="el-input__inner" placeholder="目录" v-model="inputValue">
+            <div class="el-input" @mouseenter="deleteFlag=true" @mouseleave="deleteFlag=false">
+                <input type="text" autocomplete="off" readonly class="el-input__inner" placeholder="目录" v-model="inputValue" @click="showState=true"
+                       style="cursor:pointer">
+                <span class="el-input__suffix" v-show="deleteFlag" @click="deleteSelected">
+                    <span class="el-input__suffix-inner">
+                        <i class="el-input__icon el-icon-circle-close el-input__clear"></i>
+                    </span>
+                </span>
             </div>
         </div>
         <div class="dropdown-con" v-if="showState">
@@ -49,7 +55,8 @@
                 showState: false,
                 showIndex: 0,
                 secondList: [],
-                thirdList: []
+                thirdList: [],
+                deleteFlag: false
             }
         },
         methods: {
@@ -70,7 +77,7 @@
                 } else {
                     changeArr(id, secondArr, thirdArr);
                 }
-                this.$emit('update-value', this.secondList, this.thirdList);
+                this.emitValue();
             }, selectThird(parentId, id) {
                 let secondArr = this.secondList;
                 let thirdArr = this.thirdList;
@@ -91,7 +98,13 @@
                 } else {
                     changeArr(id, thirdArr, secondArr);
                 }
-                this.$emit('update-value', this.secondList, this.thirdList);
+                this.emitValue();
+            }, deleteSelected() {
+                this.secondList = [];
+                this.thirdList = [];
+                this.emitValue();
+            }, emitValue() {
+                this.$emit('update-select', [...this.secondList], [...this.thirdList]);
             }
         },
         computed: {

@@ -5,16 +5,12 @@
                 <el-tabs type="border-card" @tab-click="handleSwitch" class="search-tabs">
                     <el-tab-pane label="API搜索">
                         <el-form :inline="true">
-                            <category
-                                    :items="items"
-                                    :multiple="false"
-                                    @update-value="getSelectInfo"
-                            />
+                            <category :items="items" :multiple="false" @update-select="updateSelect"/>
                             <el-form-item label="点值">
-                                <el-input v-model.number="apiSearch.worthy"/>
+                                <el-input v-model.number="apiSearch.worthy" clearable/>
                             </el-form-item>
                             <el-form-item label="评论">
-                                <el-input v-model.number="apiSearch.comments"/>
+                                <el-input v-model.number="apiSearch.comments" clearable/>
                             </el-form-item>
                             <el-form-item label="页码">
                                 <el-input v-model.number="apiSearch.pages"/>
@@ -26,9 +22,7 @@
                     </el-tab-pane>
                     <el-tab-pane label="数据库搜索">
                         <el-form :inline="true">
-                            <el-form-item label="目录">
-                                <el-input v-model="dbSearch.category" readonly/>
-                            </el-form-item>
+                            <!--<category :items="items" :multiple="true" @update-select="updateSelect"/>-->
                             <el-form-item label="标题">
                                 <el-input v-model="dbSearch.category"/>
                             </el-form-item>
@@ -94,14 +88,17 @@
             }, handleCurrentChange(val) {
                 // todo 触发下一页
             }, handleSwitch(tab, event) {
+                console.log(tab);
             }, search(value) {
-                if (value === 'api') {
-                    this.currentModel = 'api';
+                this.currentModel = value === 'api' ? 'api' : 'db';
+            }, updateSelect(secondList, thirdList) {
+                if (this.currentModel === 'api') {
+                    this.apiSearch.category[0] = [secondList];
+                    this.apiSearch.category[1] = [thirdList];
                 } else {
-                    this.currentModel = 'db';
+                    this.apiSearch.category[0] = [secondList];
+                    this.dbSearch.category[1] = [thirdList];
                 }
-            }, getSelectInfo(secondList, thirdList) {
-                // todo 处理下层事件
             }
         }, data() {
             let item = JSON.parse(window.localStorage.category);
@@ -109,14 +106,14 @@
             return {
                 currentModel: 'api',
                 apiSearch: {
-                    category: "",
+                    category: [[], []],
                     worthy: 0,
                     comments: 0,
                     pages: 2
                 },
                 dbSearch: {
                     dateRange: [],
-                    category: "",
+                    category: [],
                     worthy: 0,
                     comments: 0,
                     pageIndex: 1,
