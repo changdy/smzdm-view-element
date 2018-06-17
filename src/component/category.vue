@@ -1,5 +1,5 @@
 <template>
-    <div class="dropdown-con" @click.stop v-show="showState">
+    <div class="dropdown-con" v-show="showState" id="test">
         <ul class="drop-cate-list">
             <li v-for="(item,index) in items" :data-id="item.id" @mouseenter="hover(index)" :class="{ active: index === showIndex }" :key="item.id">
                 <a href="javascript:">
@@ -46,8 +46,7 @@
         methods: {
             hover(index) {
                 this.showIndex = index;
-            },
-            selectSecond(id) {
+            }, selectSecond(id) {
                 let secondArr = this.secondList;
                 let thirdArr = this.thirdList;
                 if (this.multiple) {
@@ -62,8 +61,8 @@
                 } else {
                     changeArr(id, secondArr, thirdArr);
                 }
-            },
-            selectThird(parentId, id) {
+                this.$emit('update-value', this.secondList, this.thirdList);
+            }, selectThird(parentId, id) {
                 let secondArr = this.secondList;
                 let thirdArr = this.thirdList;
                 if (this.multiple) {
@@ -80,6 +79,7 @@
                 } else {
                     changeArr(id, thirdArr, secondArr);
                 }
+                this.$emit('update-value', this.secondList, this.thirdList);
             }
         },
         computed: {
@@ -90,6 +90,16 @@
                 });
                 return tempArr;
             }
+        }, mounted() {
+            // 点击其他不在的区域触发事件
+            let vm = this;
+            document.addEventListener('click', (e) => {
+                // if (!this.$el.contains(e.target)) {
+                //     this.$emit('update:showState', false);
+                // }
+                // console.log(vm.$el);
+                console.log(document.activeElement);
+            })
         }
     }
 

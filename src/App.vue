@@ -6,13 +6,15 @@
                     <el-tab-pane label="API搜索">
                         <el-form :inline="true">
                             <el-form-item label="目录">
-                                <el-input v-model="apiSearch.category" readonly @focus="testClick"/>
+                                <el-input v-model="apiSearch.category" readonly @click.native="showState = true"/>
                                 <category
                                         :items="items"
                                         :multiple="false"
-                                        :showState="showState"
+                                        :showState.sync="showState"
                                         :itemMap="itemMap"
                                         ref="category"
+                                        @update-value="getSelectInfo"
+                                        @blur="handleCurrentChange"
                                 />
                             </el-form-item>
                             <el-form-item label="点值">
@@ -32,7 +34,7 @@
                     <el-tab-pane label="数据库搜索">
                         <el-form :inline="true">
                             <el-form-item label="目录">
-                                <el-input v-model="dbSearch.category" readonly @focus="testClick"/>
+                                <el-input v-model="dbSearch.category" readonly @click.native="showState = true"/>
                             </el-form-item>
                             <el-form-item label="标题">
                                 <el-input v-model="dbSearch.category"/>
@@ -97,25 +99,23 @@
             handleSizeChange(val) {
                 this.pageSize = val;
                 console.log(`每页 ${val} 条`);
-            },
-            handleCurrentChange(val) {
+            }, handleCurrentChange(val) {
                 // todo 触发下一页
-            },
-            handleSwitch(tab, event) {
+                console.log(val);
+            }, handleSwitch(tab, event) {
                 console.log(tab, event);
-            },
-            testClick() {
-                this.showState = true;
-            },
-            search(value) {
+            }, search(value) {
                 if (value === 'api') {
                     this.currentModel = 'api';
                 } else {
                     this.currentModel = 'db';
                 }
+            }, getSelectInfo(secondList, thirdList) {
+                // todo 处理下层事件
+                console.log(secondList, thirdList);
             }
         },
-        data() {
+        computed: {}, data() {
             let item = JSON.parse(window.localStorage.category);
             let itemMap = JSON.parse(window.localStorage.categoryItem);
             return {
