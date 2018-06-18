@@ -81,7 +81,7 @@
                 currentModel: 'api',
                 loadingStatus: false,
                 apiSearch: {
-                    category: [],
+                    category: [[], []],
                     worthy: 0,
                     comments: 0,
                     pages: 2,
@@ -92,7 +92,7 @@
                         new moment().subtract(7, 'days').format('YYYY-MM-DD'),
                         new moment().format('YYYY-MM-DD')
                     ],
-                    category: [],
+                    category: [[], []],
                     title: '',
                     worthy: 0,
                     comments: 0,
@@ -111,8 +111,8 @@
                 this.currentModel = tab.label;
             }, search() {
                 if (this.currentModel === 'api') {
-                    let words = [...this.apiSearch[0], ...this.apiSearch[1]][0];
-                    if (words === null) {
+                    let words = [...this.apiSearch.category[0], ...this.apiSearch.category[1]][0];
+                    if (words === undefined) {
                         this.$message({
                             message: '请选择目录',
                             type: 'warning'
