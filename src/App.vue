@@ -79,9 +79,9 @@
         data() {
             return {
                 currentModel: 'api',
-                loadingStatus:false,
+                loadingStatus: false,
                 apiSearch: {
-                    category: [[], []],
+                    category: [],
                     worthy: 0,
                     comments: 0,
                     pages: 2,
@@ -131,13 +131,11 @@
                 } else {
                     console.log(JSON.stringify(this.dbSearch));
                 }
-            }, updateSelect(secondList, thirdList) {
+            }, updateSelect(selectArr) {
                 if (this.currentModel === 'api') {
-                    this.apiSearch.category[0] = secondList;
-                    this.apiSearch.category[1] = thirdList;
+                    this.apiSearch.category = selectArr;
                 } else {
-                    this.apiSearch.category[0] = secondList;
-                    this.dbSearch.category[1] = thirdList;
+                    this.dbSearch.category = selectArr;
                 }
             }
         }, mounted() {
