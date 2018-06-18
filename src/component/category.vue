@@ -71,7 +71,9 @@
                     } else {
                         secondArr.push(id);
                         this.parallelItem[1].find(x => x.id === id).child.forEach(x => {
-                            thirdArr.splice(thirdArr.findIndex(item => item === x), 1);
+                            if (thirdArr.includes(x)) {
+                                thirdArr.splice(thirdArr.findIndex(item => item === x), 1);
+                            }
                         })
                     }
                 } else {
