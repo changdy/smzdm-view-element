@@ -15,8 +15,11 @@
                             <el-form-item label="页码">
                                 <el-input v-model.number="apiSearch.pages"/>
                             </el-form-item>
+                            <el-form-item label="排序">
+                                <el-switch v-model="apiSearch.sort" inactive-color="#ff4949" active-text="时间排序" inactive-text="点值排序"/>
+                            </el-form-item>
                             <el-form-item>
-                                <el-button type="primary" icon="el-icon-search" @click="search">查询</el-button>
+                                <el-button type="primary" icon="el-icon-search" @click="search" :loading="loadingStatus">查询</el-button>
                             </el-form-item>
                         </el-form>
                     </el-tab-pane>
@@ -33,17 +36,11 @@
                                 <el-input v-model.number="dbSearch.comments"/>
                             </el-form-item>
                             <el-form-item label="时间">
-                                <el-date-picker
-                                        value-format="yyyy-MM-dd"
-                                        v-model="dbSearch.dateRange"
-                                        type="daterange"
-                                        range-separator="至"
-                                        start-placeholder="开始日期"
-                                        end-placeholder="结束日期">
-                                </el-date-picker>
+                                <el-date-picker value-format="yyyy-MM-dd" v-model="dbSearch.dateRange" type="daterange" range-separator="至"
+                                                start-placeholder="开始日期" end-placeholder="结束日期"/>
                             </el-form-item>
                             <el-form-item>
-                                <el-button type="primary" icon="el-icon-search" @click="search">查询</el-button>
+                                <el-button type="primary" icon="el-icon-search" @click="search" :loading="loadingStatus">查询</el-button>
                             </el-form-item>
                         </el-form>
                     </el-tab-pane>
@@ -51,20 +48,18 @@
             </el-col>
         </el-row>
         <el-row style="margin-top: 20px">
-            <el-col :span="18" :offset="4" class="z-clearfix">
+            <el-col :span="18" :offset="4" class="z-clearfix" :v-loading="loadingStatus">
                 <article-list :items="articleList" v-show="articleList.length >0"/>
-                <div v-show="articleList.length === 0" style="margin: auto">当前暂无记录</div>
+                <div v-show="articleList.length === 0" style="margin: auto;padding: 40px">当前暂无记录</div>
             </el-col>
         </el-row>
         <el-row v-show="currentModel === 'db'">
             <el-col :span="6" :offset="8">
                 <el-pagination
-                        @size-change="handleSizeChange"
                         @current-change="handleCurrentChange"
                         :current-page.sync="dbSearch.pageIndex"
-                        :page-sizes="[50, 100,200]"
-                        :page-size="dbSearch.pageSize"
-                        layout="total, sizes, prev, pager, next, jumper"
+                        :page-size="30"
+                        layout="total,  prev, pager, next, jumper"
                         :total="total"
                 >
                 </el-pagination>
@@ -77,25 +72,31 @@
     import articleList from "./component/article-list.vue";
 
     import category from "./component/category";
+    import moment from "moment";
+    import axios from "axios";
 
     export default {
         data() {
             return {
                 currentModel: 'api',
+                loadingStatus:false,
                 apiSearch: {
                     category: [[], []],
                     worthy: 0,
                     comments: 0,
-                    pages: 2
+                    pages: 2,
+                    sort: true
                 },
                 dbSearch: {
-                    dateRange: [],
+                    dateRange: [
+                        new moment().subtract(7, 'days').format('YYYY-MM-DD'),
+                        new moment().format('YYYY-MM-DD')
+                    ],
                     category: [],
                     title: '',
                     worthy: 0,
                     comments: 0,
                     pageIndex: 1,
-                    pageSize: 100
                 },
                 total: 500,
                 articleList: [],
@@ -104,16 +105,29 @@
         }, components: {
             articleList,
             category
-        },
-        methods: {
-            handleSizeChange(val) {
-                this.pageSize = val;
-            }, handleCurrentChange(val) {
+        }, methods: {
+            handleCurrentChange(val) {
             }, handleSwitch(tab) {
                 this.currentModel = tab.label;
             }, search() {
                 if (this.currentModel === 'api') {
-                    console.log(JSON.stringify(this.apiSearch));
+                    let words = [...this.apiSearch[0], ...this.apiSearch[1]][0];
+                    if (words === null) {
+                        this.$message({
+                            message: '请选择目录',
+                            type: 'warning'
+                        });
+                        return;
+                    }
+                    axios.post('/api/article/proxy-list', {
+                        "keyWords": [...this.apiSearch[0], ...this.apiSearch[1]][0],
+                        "page": this.apiSearch.pages,
+                        "searchByCategory": true
+                    }).then(function (response) {
+                        console.log(response);
+                    }).catch(function (error) {
+                        console.log(error);
+                    });
                 } else {
                     console.log(JSON.stringify(this.dbSearch));
                 }
@@ -126,6 +140,7 @@
                     this.dbSearch.category[1] = thirdList;
                 }
             }
+        }, mounted() {
         }
     }
 </script>
