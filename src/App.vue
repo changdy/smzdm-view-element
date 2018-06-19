@@ -7,16 +7,16 @@
                         <el-form :inline="true">
                             <category :items="items" :multiple="false" @update-select="updateSelect"/>
                             <el-form-item label="点值">
-                                <el-input v-model.number="apiSearch.worthy"/>
+                                <el-input v-model.lazy.number="apiSearch.worthy"/>
                             </el-form-item>
                             <el-form-item label="评论">
-                                <el-input v-model.number="apiSearch.comments"/>
+                                <el-input v-model.lazy.number="apiSearch.comments"/>
                             </el-form-item>
                             <el-form-item label="页码">
                                 <el-input v-model.number="apiSearch.pages"/>
                             </el-form-item>
                             <el-form-item label="排序">
-                                <el-switch v-model="apiSearch.sort" inactive-color="#ff4949" active-text="时间排序" inactive-text="点值排序"/>
+                                <el-switch v-model="apiSearch.sortByDate" inactive-color="#ff4949" active-text="时间排序" inactive-text="点值排序"/>
                             </el-form-item>
                             <el-form-item>
                                 <el-button type="primary" icon="el-icon-search" @click="search" :loading="loadingStatus">查询</el-button>
@@ -50,7 +50,7 @@
         <el-row style="margin-top: 20px">
             <el-col :span="18" :offset="4" class="z-clearfix" :v-loading="loadingStatus">
                 <article-list :items="articleList" v-show="articleList.length >0"/>
-                <div v-show="articleList.length === 0" style="margin: auto;padding: 40px">当前暂无记录</div>
+                <div v-show="articleList.length === 0" style="padding: 40px">当前暂无记录</div>
             </el-col>
         </el-row>
         <el-row v-show="currentModel === 'db'">
@@ -85,7 +85,7 @@
                     worthy: 0,
                     comments: 0,
                     pages: 2,
-                    sort: true
+                    sortByDate: true
                 },
                 dbSearch: {
                     dateRange: [
@@ -99,7 +99,8 @@
                     pageIndex: 1,
                 },
                 total: 500,
-                articleList: [],
+                apiList: [],
+                dbList: [],
                 items: JSON.parse(window.localStorage.category)
             };
         }, components: {
@@ -110,21 +111,22 @@
             }, handleSwitch(tab) {
                 this.currentModel = tab.label;
             }, search() {
-                if (this.currentModel === 'api') {
-                    let words = [...this.apiSearch.category[0], ...this.apiSearch.category[1]][0];
+                let vm = this;
+                if (vm.currentModel === 'api') {
+                    let words = [...vm.apiSearch.category[0], ...vm.apiSearch.category[1]][0];
                     if (words === undefined) {
-                        this.$message({
+                        vm.$message({
                             message: '请选择目录',
                             type: 'warning'
                         });
                         return;
                     }
-                    axios.post('/api/article/proxy-list', {
-                        "keyWords": [...this.apiSearch[0], ...this.apiSearch[1]][0],
+                    axios.post('/article/proxy-list', {
+                        "keyWords": words,
                         "page": this.apiSearch.pages,
                         "searchByCategory": true
                     }).then(function (response) {
-                        console.log(response);
+                        vm.apiList = response.data;
                     }).catch(function (error) {
                         console.log(error);
                     });
@@ -139,6 +141,44 @@
                 }
             }
         }, mounted() {
+            let vm = this;
+            // 添加请求拦截器
+            axios.interceptors.request.use(function (config) {
+                // 在发送请求之前做些什么
+                vm.loadingStatus = true;
+                return config;
+            }, function (error) {
+                // 对请求错误做些什么
+                return Promise.reject(error);
+            });
+            // 添加响应拦截器
+            axios.interceptors.response.use(function (response) {
+                // 对响应数据做点什么
+                vm.loadingStatus = false;
+                return response;
+            }, function (error) {
+                // 对响应错误做点什么
+                vm.loadingStatus = false;
+                return Promise.reject(error);
+            });
+        }, computed: {
+            articleList() {
+                let vm = this;
+                if (vm.currentModel === 'db') {
+                    return vm.dbList;
+                } else {
+                    let tempList = vm.dbList.filter(x => x.worthy > vm.apiSearch.worthy && x.comment > vm.apiSearch.comments);
+                    if (vm.apiSearch.sortByDate) {
+                        tempList.sort((a, b) => {
+                            return b.date - a.date;
+                        });
+                    } else {
+                        tempList.sort((a, b) => {
+                            return b.worthy - a.worthy;
+                        });
+                    }
+                }
+            }
         }
     }
 </script>
