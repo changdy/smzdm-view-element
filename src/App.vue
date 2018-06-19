@@ -1,7 +1,7 @@
 <template>
     <div>
         <el-row>
-            <el-col :span="12" :offset="4">
+            <el-col :span="13" :offset="4">
                 <el-tabs type="border-card" @tab-click="handleSwitch" class="search-tabs">
                     <el-tab-pane label="api">
                         <el-form :inline="true">
@@ -48,7 +48,7 @@
             </el-col>
         </el-row>
         <el-row style="margin-top: 20px">
-            <el-col :span="18" :offset="4" class="z-clearfix" :v-loading="loadingStatus">
+            <el-col :span="13" :offset="4" class="z-clearfix" :v-loading="loadingStatus">
                 <article-list :items="articleList" v-show="articleList.length >0"/>
                 <div v-show="articleList.length === 0" style="padding: 40px">当前暂无记录</div>
             </el-col>
@@ -101,7 +101,8 @@
                 total: 500,
                 apiList: [],
                 dbList: [],
-                items: JSON.parse(window.localStorage.category)
+                items: JSON.parse(window.localStorage.category),
+                keywords: ""
             };
         }, components: {
             articleList,
@@ -113,8 +114,7 @@
             }, search() {
                 let vm = this;
                 if (vm.currentModel === 'api') {
-                    let words = [...vm.apiSearch.category[0], ...vm.apiSearch.category[1]][0];
-                    if (words === undefined) {
+                    if (vm.keywords === "") {
                         vm.$message({
                             message: '请选择目录',
                             type: 'warning'
@@ -122,20 +122,21 @@
                         return;
                     }
                     axios.post('/article/proxy-list', {
-                        "keyWords": words,
+                        "keyWords": vm.keywords,
                         "page": this.apiSearch.pages,
                         "searchByCategory": true
                     }).then(function (response) {
-                        vm.apiList = response.data;
+                        vm.apiList = response.data.data;
                     }).catch(function (error) {
                         console.log(error);
                     });
                 } else {
                     console.log(JSON.stringify(this.dbSearch));
                 }
-            }, updateSelect(selectArr) {
+            }, updateSelect(selectArr, inputValue) {
                 if (this.currentModel === 'api') {
                     this.apiSearch.category = selectArr;
+                    this.keywords = inputValue;
                 } else {
                     this.dbSearch.category = selectArr;
                 }

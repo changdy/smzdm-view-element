@@ -106,7 +106,7 @@
                 this.thirdList = [];
                 this.emitValue();
             }, emitValue() {
-                this.$emit('update-select', [[...this.secondList], [...this.thirdList]]);
+                this.$emit('update-select', [[...this.secondList], [...this.thirdList]], this.inputValue);
             }
         },
         computed: {
