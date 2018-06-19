@@ -167,7 +167,7 @@
                 if (vm.currentModel === 'db') {
                     return vm.dbList;
                 } else {
-                    let tempList = vm.dbList.filter(x => x.worthy > vm.apiSearch.worthy && x.comment > vm.apiSearch.comments);
+                    let tempList = vm.apiList.filter(x => x.worthy > vm.apiSearch.worthy && x.comment > vm.apiSearch.comments);
                     if (vm.apiSearch.sortByDate) {
                         tempList.sort((a, b) => {
                             return b.date - a.date;
@@ -177,6 +177,7 @@
                             return b.worthy - a.worthy;
                         });
                     }
+                    return tempList;
                 }
             }
         }
