@@ -101,7 +101,7 @@
                 total: 500,
                 apiList: [],
                 dbList: [],
-                items: JSON.parse(window.localStorage.category),
+                items: [],
                 keywords: ""
             };
         }, components: {
@@ -161,6 +161,16 @@
                 // 对响应错误做点什么
                 vm.loadingStatus = false;
                 return Promise.reject(error);
+            });
+            axios.get(`/category/get-last/${window.localStorage.sha1}`).then(function (response) {
+                let data = response.data.data;
+                if (Array.isArray(data)) {
+                    window.localStorage.sha1 = data[0];
+                    window.localStorage.category = data[1];
+                }
+                vm.items = JSON.parse(window.localStorage.category);
+            }).catch(function (error) {
+                console.log(error);
             });
         }, computed: {
             articleList() {
