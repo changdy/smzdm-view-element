@@ -2,8 +2,8 @@
     <div>
         <el-row>
             <el-col :span="13" :offset="4">
-                <el-tabs type="border-card" @tab-click="handleSwitch" class="search-tabs">
-                    <el-tab-pane label="api">
+                <el-tabs type="border-card" class="search-tabs" v-model="currentModel">
+                    <el-tab-pane name="api" label="api搜索">
                         <el-form :inline="true">
                             <category :items="items" :multiple="false" @update-select="updateSelect"/>
                             <el-form-item label="点值">
@@ -23,7 +23,7 @@
                             </el-form-item>
                         </el-form>
                     </el-tab-pane>
-                    <el-tab-pane label="db">
+                    <el-tab-pane name="db" label="数据库">
                         <el-form :inline="true">
                             <category :items="items" :multiple="true" @update-select="updateSelect"/>
                             <el-form-item label="标题">
@@ -37,7 +37,7 @@
                             </el-form-item>
                             <el-form-item label="时间">
                                 <el-date-picker value-format="yyyy-MM-dd" v-model="dbSearch.dateRange" type="daterange" range-separator="至"
-                                                start-placeholder="开始日期" end-placeholder="结束日期"/>
+                                                start-placeholder="开始日期" end-placeholder="结束日期" :editable="false"/>
                             </el-form-item>
                             <el-form-item>
                                 <el-button type="primary" icon="el-icon-search" @click="search" :loading="loadingStatus">查询</el-button>
@@ -109,8 +109,6 @@
             category
         }, methods: {
             handleCurrentChange(val) {
-            }, handleSwitch(tab) {
-                this.currentModel = tab.label;
             }, search() {
                 let vm = this;
                 if (vm.currentModel === 'api') {
@@ -131,7 +129,7 @@
                         console.log(error);
                     });
                 } else {
-                    console.log(JSON.stringify(this.dbSearch));
+                    // console.log(JSON.stringify(this.dbSearch));
                 }
             }, updateSelect(selectArr, inputValue) {
                 if (this.currentModel === 'api') {
