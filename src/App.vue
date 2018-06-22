@@ -27,7 +27,7 @@
                         <el-form :inline="true">
                             <category :items="items" :multiple="true" @update-select="updateSelect"/>
                             <el-form-item label="标题">
-                                <el-input v-model="dbSearch.title"/>
+                                <el-input v-model.trim="dbSearch.title"/>
                             </el-form-item>
                             <el-form-item label="点值">
                                 <el-input v-model.number="dbSearch.worthy"/>
@@ -126,10 +126,24 @@
                     }).then(function (response) {
                         vm.apiList = response.data.data;
                     }).catch(function (error) {
-                        console.log(error);
                     });
                 } else {
-                    // console.log(JSON.stringify(this.dbSearch));
+                    let searObj = {pageSize: 30};
+                    let db = vm.dbSearch;
+                    let dateRange = db.dateRange;
+                    searObj.title = db.title.split(/ +/).join('&');
+                    searObj.comments = db.comments === 0 ? null : db.comments;
+                    searObj.worthy = db.worthy === 0 ? null : db.worthy;
+                    if (dateRange.length === 2) {
+                        searObj.startTime = dateRange[0];
+                        searObj.endTime = dateRange[1] === new moment().format('YYYY-MM-DD') ? '' : dateRange[1];
+                    }
+                    searObj.offset = 30 * db.pageIndex - 30;
+                    axios.post('/article/search-article', searObj).then(res => {
+                        console.log(res);
+                    }).catch(error => {
+                        console.error(error);
+                    });
                 }
             }, updateSelect(selectArr, inputValue) {
                 if (this.currentModel === 'api') {
