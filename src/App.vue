@@ -48,7 +48,7 @@
             </el-col>
         </el-row>
         <el-row style="margin-top: 20px">
-            <el-col :span="13" :offset="4" class="z-clearfix" :v-loading="loadingStatus">
+            <el-col :span="13" :offset="4" class="z-clearfix" v-loading="loadingStatus">
                 <article-list :items="articleList" v-show="articleList.length >0"/>
                 <div v-show="articleList.length === 0" style="padding: 40px">当前暂无记录</div>
             </el-col>
@@ -56,7 +56,7 @@
         <el-row v-show="currentModel === 'db'">
             <el-col :span="6" :offset="8">
                 <el-pagination
-                        @current-change="handleCurrentChange"
+                        @current-change="searchDb"
                         :current-page.sync="dbSearch.pageIndex"
                         :page-size="30"
                         layout="total,  prev, pager, next, jumper"
@@ -74,6 +74,14 @@
     import category from "./component/category";
     import moment from "moment";
     import axios from "axios";
+
+    let smoothScroll = () => {
+        let currentScroll = document.documentElement.scrollTop || document.body.scrollTop;
+        if (currentScroll > 0) {
+            window.requestAnimationFrame(smoothScroll);
+            window.scrollTo(0, currentScroll - (currentScroll / 5));
+        }
+    };
 
     export default {
         data() {
@@ -98,7 +106,7 @@
                     comment: 0,
                     pageIndex: 1,
                 },
-                total: 500,
+                total: 0,
                 apiList: [],
                 dbList: [],
                 items: [],
@@ -108,8 +116,7 @@
             articleList,
             category
         }, methods: {
-            handleCurrentChange(val) {
-            }, search() {
+            search() {
                 let vm = this;
                 if (vm.currentModel === 'api') {
                     if (vm.keywords === "") {
@@ -128,23 +135,8 @@
                     }).catch(function (error) {
                     });
                 } else {
-                    let searObj = {pageSize: 30};
-                    let db = vm.dbSearch;
-                    let dateRange = db.dateRange;
-                    let title = db.title.split(/ +/).join('&');
-                    searObj.title = title === '' ? null : title;
-                    searObj.comment = db.comment === 0 ? null : db.comment;
-                    searObj.worthy = db.worthy === 0 ? null : db.worthy;
-                    if (dateRange.length === 2) {
-                        searObj.startTime = dateRange[0];
-                        searObj.endTime = dateRange[1] === new moment().format('YYYY-MM-DD') ? null : dateRange[1];
-                    }
-                    searObj.offset = 30 * db.pageIndex - 30;
-                    axios.post('/article/search-article', searObj).then(res => {
-                        console.log(res);
-                    }).catch(error => {
-                        console.error(error);
-                    });
+                    vm.dbSearch.pageIndex = 1;
+                    vm.searchDb();
                 }
             }, updateSelect(selectArr, inputValue) {
                 if (this.currentModel === 'api') {
@@ -153,6 +145,27 @@
                 } else {
                     this.dbSearch.category = selectArr;
                 }
+            }, searchDb() {
+                smoothScroll();
+                let vm = this;
+                let searObj = {pageSize: 30};
+                let db = vm.dbSearch;
+                let dateRange = db.dateRange;
+                let title = db.title.split(/ +/).join('&');
+                searObj.title = title === '' ? null : title;
+                searObj.comment = db.comment === 0 ? null : db.comment;
+                searObj.worthy = db.worthy === 0 ? null : db.worthy;
+                if (dateRange.length === 2) {
+                    searObj.startTime = dateRange[0];
+                    searObj.endTime = dateRange[1] === new moment().format('YYYY-MM-DD') ? null : dateRange[1];
+                }
+                searObj.offset = 30 * db.pageIndex - 30;
+                axios.post('/article/search-article', searObj).then(res => {
+                    let data = res.data.data;
+                    vm.total = data.recordSize;
+                    vm.dbList = data.list;
+                }).catch(error => {
+                });
             }
         }, mounted() {
             let vm = this;
@@ -183,7 +196,6 @@
                 }
                 vm.items = JSON.parse(window.localStorage.category);
             }).catch(function (error) {
-                console.log(error);
             });
         }, computed: {
             articleList() {
