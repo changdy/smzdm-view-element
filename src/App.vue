@@ -10,7 +10,7 @@
                                 <el-input v-model.lazy.number="apiSearch.worthy"/>
                             </el-form-item>
                             <el-form-item label="评论">
-                                <el-input v-model.lazy.number="apiSearch.comments"/>
+                                <el-input v-model.lazy.number="apiSearch.comment"/>
                             </el-form-item>
                             <el-form-item label="页码">
                                 <el-input v-model.number="apiSearch.pages"/>
@@ -33,7 +33,7 @@
                                 <el-input v-model.number="dbSearch.worthy"/>
                             </el-form-item>
                             <el-form-item label="评论">
-                                <el-input v-model.number="dbSearch.comments"/>
+                                <el-input v-model.number="dbSearch.comment"/>
                             </el-form-item>
                             <el-form-item label="时间">
                                 <el-date-picker value-format="yyyy-MM-dd" v-model="dbSearch.dateRange" type="daterange" range-separator="至"
@@ -83,7 +83,7 @@
                 apiSearch: {
                     category: [[], []],
                     worthy: 0,
-                    comments: 0,
+                    comment: 0,
                     pages: 2,
                     sortByDate: true
                 },
@@ -95,7 +95,7 @@
                     category: [[], []],
                     title: '',
                     worthy: 0,
-                    comments: 0,
+                    comment: 0,
                     pageIndex: 1,
                 },
                 total: 500,
@@ -131,12 +131,13 @@
                     let searObj = {pageSize: 30};
                     let db = vm.dbSearch;
                     let dateRange = db.dateRange;
-                    searObj.title = db.title.split(/ +/).join('&');
-                    searObj.comments = db.comments === 0 ? null : db.comments;
+                    let title = db.title.split(/ +/).join('&');
+                    searObj.title = title === '' ? null : title;
+                    searObj.comment = db.comment === 0 ? null : db.comment;
                     searObj.worthy = db.worthy === 0 ? null : db.worthy;
                     if (dateRange.length === 2) {
                         searObj.startTime = dateRange[0];
-                        searObj.endTime = dateRange[1] === new moment().format('YYYY-MM-DD') ? '' : dateRange[1];
+                        searObj.endTime = dateRange[1] === new moment().format('YYYY-MM-DD') ? null : dateRange[1];
                     }
                     searObj.offset = 30 * db.pageIndex - 30;
                     axios.post('/article/search-article', searObj).then(res => {
@@ -190,7 +191,7 @@
                 if (vm.currentModel === 'db') {
                     return vm.dbList;
                 } else {
-                    let tempList = vm.apiList.filter(x => x.worthy >= vm.apiSearch.worthy && x.comment >= vm.apiSearch.comments);
+                    let tempList = vm.apiList.filter(x => x.worthy >= vm.apiSearch.worthy && x.comment >= vm.apiSearch.comment);
                     if (vm.apiSearch.sortByDate) {
                         tempList.sort((a, b) => {
                             return b.date - a.date;
